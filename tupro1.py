@@ -31,23 +31,24 @@ def decode(arr):
 # fungsi konversi genotype (kromosom) menjadi phenotype (individu)
     sum1 = ((arr[0] * 10**-1) + (arr[1] * 10**-2) + (arr[2] * 10**-3) + (arr[3] * 10**-4) + (arr[4] * 10**-5))
     sum2 = ((arr[5] * 10**-1) + (arr[6] * 10**-2) + (arr[7] * 10**-3) + (arr[8] * 10**-4) + (arr[9] * 10**-5))
-    
+
     x = xmin + ((xmax-xmin) / (9 * (10**-1 + 10**-2 + 10**-3 + 10**-4 + 10**-5))) * sum1
     y = ymin + ((ymax-ymin) / (9 * (10**-1 + 10**-2 + 10**-3 + 10**-4 + 10**-5))) * sum2
     return [x, y]
 
-def Fitness(arr): 
+def Fitness(arr):
 # fungsi untuk mencari nilai minimum fitness dari suatu phenotype (kromosom yang sudah di decode)
     x = decode(arr)
     h = ((math.cos(x[0])+math.sin(x[1]))**2)/((x[0]**2)+(x[1]**2))
-    return -h
+    fitness = 1/(h+0.1)
+    return fitness
 
-def parent(population, k, ukuranPopulasi): 
+def parent(populasi, k, ukuranPopulasi): 
 # fungsi untuk memilih orang tua dengan metode tournament selection
 # mengambil sampling sebanyak k (5) dari sebuah populasi berukuran 50 kromosom
     best = []
     for i in range(1, k):
-        indv = population[rd.randint(0, ukuranPopulasi-1)]
+        indv = populasi[rd.randint(0, ukuranPopulasi-1)]
         if (best == [] or Fitness(indv) > Fitness(best)):
             best = indv      
     return best
@@ -69,18 +70,17 @@ def mutasi(p1, p2, probM):
         p2[rd.randint(0,9)] = rd.randint(0,9)
     return p1, p2
 
-def newGeneration(arrFitness): 
+def indeksMaksFitness(arrFitness): 
 # fungsi untuk mengetahui index dari nilai fitness terbaik digenerasi
-    maks = max(arrFitness)
-    return arrFitness.index(maks)
+    terbaik = max(arrFitness)
+    return arrFitness.index(terbaik)
 
-def semuaFitness(population, ukuranPopulasi): 
+def semuaFitness(populasi, ukuranPopulasi): 
 # fungsi untuk mengumpulkan nilai fitness satu populasi (50 kromosom) menjadi satu array
     arrFitness = []
     for i in range(ukuranPopulasi):
-        arrFitness.append(Fitness(population[i]))
+        arrFitness.append(Fitness(populasi[i]))
     return arrFitness
-
 
 #main program
 
@@ -93,12 +93,11 @@ for i in range(generasi):
     #membuat array yang isinya hasil konversi populasi kromosom 
     #menjadi nilai fitness pada generasi i
     ft = semuaFitness(pop, ukuranPopulasi)
-
-    populasi_baru = []
+    populasiBaru = []
     #index nilai fitness terbaik pada generasi i
-    best = newGeneration(ft)
-    #memasukkan kromosom terbaik pada array populasi_baru
-    populasi_baru.append(pop[best])
+    best = indeksMaksFitness(ft)
+    #memasukkan kromosom terbaik pada array populasiBaru
+    populasiBaru.append(pop[best])
 
     i = 0
     
@@ -115,18 +114,18 @@ for i in range(generasi):
         
         anak = silang(p1, p2, probC)
         anak = mutasi(anak[0], anak[1], probM)
-        populasi_baru += anak
+        populasiBaru += anak
         i += 1
         
-    pop = populasi_baru
+    pop = populasiBaru
     
 ft = semuaFitness(pop, ukuranPopulasi)
-hasil = newGeneration(ft)
-xhasil = decode(pop[hasil])
+hasil = indeksMaksFitness(ft)
+xHasil = decode(pop[hasil])
 
 #output
 print('Kromosom terbaik: ', pop[hasil])
 print('Fitness: ', Fitness(pop[hasil]))
 print('Nilai x dan y hasil dekode')
-print('     x:', xhasil[0])
-print('     y:', xhasil[1])
+print('     x:', xHasil[0])
+print('     y:', xHasil[1])
